@@ -1,16 +1,29 @@
-# appmobile
+# 📱 Aplicativo de Força de Vendas
 
-A new Flutter project.
+Aplicativo mobile para gerenciamento de força de vendas com cadastros de usuários, clientes e produtos.
 
-## Getting Started
+## ✨ Funcionalidades
 
-This project is a starting point for a Flutter application.
+### 🔐 Autenticação
+- Tela de login com validação
+- Usuário admin padrão (`admin`/`admin`)
+- Cadastro de novos usuários
 
-A few resources to get you started if this is your first Flutter project:
+### 📝 Cadastros CRUD
+| Entidade  | Operações | Campos Obrigatórios |
+|-----------|-----------|---------------------|
+| 👥 Usuários | Create/Read/Update/Delete | ID, Nome, Senha |
+| 🏢 Clientes | Create/Read/Update/Delete | ID, Nome, Tipo, CPF/CNPJ |
+| 🛍️ Produtos | Create/Read/Update/Delete | ID, Nome, Unidade, Estoque, Preço, Status |
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 💾 Persistência
+- Armazenamento em arquivos JSON
+- Validação de campos obrigatórios (*)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Como Executar
+
+```bash
+# Clone o repositório 
+# Abra no Android Studio
+# Conecte um dispositivo ou emulador
+# Execute o aplicativo
