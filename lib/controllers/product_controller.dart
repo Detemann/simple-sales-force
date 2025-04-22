@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import '../models/product.dart';
 
 class ProductController {
   List<Product> _products = [];
   int _nextProductId = 1;
+  static const String _fileName = 'products.json';
+  static const String _androidDataPath = '/data/data/com.example.appmobile/files';
 
   static final ProductController _instance = ProductController._internal();
 
@@ -13,27 +14,41 @@ class ProductController {
 
   ProductController._internal();
 
+  Future<File> get _localFile async {
+    final directory = Directory(_androidDataPath);
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    return File('${directory.path}/$_fileName');
+  }
+
   Future<void> loadProducts() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/products.json');
-    if (await file.exists()) {
-      final contents = await file.readAsString();
-      List<dynamic> jsonList = json.decode(contents);
-      _products = jsonList.map((json) => Product.fromJson(json)).toList();
-      _nextProductId = _products.isNotEmpty ? int.parse(_products.last.id) + 1 : 1;
-    } else {
+    try {
+      final file = await _localFile;
+      if (await file.exists()) {
+        final contents = await file.readAsString();
+        List<dynamic> jsonList = json.decode(contents);
+        _products = jsonList.map((json) => Product.fromJson(json)).toList();
+        _nextProductId = _products.isNotEmpty ? int.parse(_products.last.id) + 1 : 1;
+      }
+    } catch (e) {
+      print('Erro ao carregar produtos: $e');
       _products = [];
       _nextProductId = 1;
     }
   }
 
   Future<void> saveProducts() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/products.json');
-    await file.writeAsString(json.encode(_products));
+    try {
+      final file = await _localFile;
+      await file.writeAsString(json.encode(_products));
+    } catch (e) {
+      print('Erro ao salvar produtos: $e');
+      throw Exception('Não foi possível salvar os produtos: $e');
+    }
   }
 
-  void addProduct(Product product) {
+  Future<void> addProduct(Product product) async {
     _products.add(
       Product(
         id: _nextProductId.toString(),
@@ -47,21 +62,32 @@ class ProductController {
       ),
     );
     _nextProductId++;
-    saveProducts();
+    await saveProducts();
   }
 
-  void updateProduct(Product updatedProduct) {
-    int index = _products.indexWhere((p) => p.id == updatedProduct.id);
+  Future<void> updateProduct(Product updatedProduct) async {
+    final index = _products.indexWhere((p) => p.id == updatedProduct.id);
     if (index != -1) {
       _products[index] = updatedProduct;
-      saveProducts();
+      await saveProducts();
     }
   }
 
-  void deleteProduct(String id) {
+  Future<void> deleteProduct(String id) async {
     _products.removeWhere((p) => p.id == id);
-    saveProducts();
+    await saveProducts();
   }
 
   List<Product> get products => _products;
+
+  Future<void> clearAll() async {
+    _products = [];
+    _nextProductId = 1;
+    await saveProducts();
+  }
+
+  Future<String> getDebugPath() async {
+    final file = await _localFile;
+    return file.path;
+  }
 }
