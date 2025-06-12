@@ -10,8 +10,8 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    final path = join(await getDatabasesPath(), 'sales.db');
-    _database = await openDatabase(path, version: 1, onCreate: _onCreate);
+    final path = join(await getDatabasesPath(), 'database.sqlite');
+    _database = await openDatabase(path, version: 2, onCreate: _onCreate);
     return _database!;
   }
 
@@ -23,14 +23,12 @@ class DatabaseHelper {
         password TEXT NOT NULL,
         lastModified INTEGER,
         deleted INTEGER DEFAULT 0
-      )");
+      )
     ''');
     await db.execute('''
       CREATE TABLE clients (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        type TEXT NOT NULL,
-        cpfCnpj TEXT NOT NULL,
         email TEXT,
         phone TEXT,
         cep TEXT,
@@ -59,10 +57,10 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE orders (
         id TEXT PRIMARY KEY,
-        clientId TEXT NOT NULL,
-        userId TEXT NOT NULL,
-        total REAL NOT NULL,
-        createdAt INTEGER NOT NULL,
+        clientId TEXT,
+        userId TEXT,
+        total REAL,
+        createdAt TEXT,
         lastModified INTEGER,
         deleted INTEGER DEFAULT 0
       )
@@ -70,7 +68,9 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE order_items (
         orderId TEXT,
+        clientId TEXT,
         id TEXT,
+        price REAL,
         productId TEXT,
         quantity REAL NOT NULL,
         total REAL NOT NULL,
@@ -78,10 +78,11 @@ class DatabaseHelper {
       )
     ''');
     await db.execute('''
-      CREATE TABLE order_payments (
+      CREATE TABLE order_payments ( 
         orderId TEXT,
         id TEXT,
-        amount REAL NOT NULL,
+        amount REAL,
+        value REAL,
         PRIMARY KEY(orderId, id)
       )
     ''');

@@ -37,7 +37,7 @@ class UserRepository {
 
   Future<User?> getUserById(String id) async {
     final db = await database;
-    final result = await db.query('users', where: 'id = ? AND deleted = 0', whereArgs: [id]);
+    final result = await db.query('users', where: 'name = ? AND deleted = 0', whereArgs: [id]);
     if (result.isNotEmpty) {
       return User.fromMap(result.first);
     }
@@ -46,7 +46,11 @@ class UserRepository {
 
   Future<User?> authenticate(String id, String password) async {
     final db = await database;
-    final result = await db.query('users', where: 'id = ? AND password = ? AND deleted = 0', whereArgs: [id, password]);
+    final result = await db.query(
+      'users',
+      where: 'name = ? AND password = ? AND deleted = 0',
+      whereArgs: [id, password],
+    );
     if (result.isNotEmpty) {
       return User.fromMap(result.first);
     }

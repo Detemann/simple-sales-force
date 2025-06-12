@@ -27,13 +27,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final id = _idController.text;
     final password = _passwordController.text;
-    final user = await UserRepository().getUserById(id); // busca usuário localmente
+    final user = await UserRepository().getUserById(id);
 
     if (user != null && user.password == password) {
-      // sucesso: navega para tela principal
-      Navigator.pushReplacementNamed(context, '/register_client');
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // falha: mostra alerta
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ID ou senha inválidos')));
     }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:trabalhon3/services/database_helper.dart';
 
 class ProductRegistrationScreen extends StatefulWidget {
   const ProductRegistrationScreen({super.key});
@@ -19,20 +21,28 @@ class _ProductRegistrationScreenState extends State<ProductRegistrationScreen> {
   final TextEditingController _costController = TextEditingController();
   final TextEditingController _barcodeController = TextEditingController();
 
-  void _saveProduct() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Produto salvo com sucesso!')));
+  Future<void> _saveProduct() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      // Limpa os campos
-      _idController.clear();
-      _nameController.clear();
-      _unitController.clear();
-      _stockQtyController.clear();
-      _priceController.clear();
-      _statusController.clear();
-      _costController.clear();
-      _barcodeController.clear();
-    }
+    final db = await DatabaseHelper.instance.database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.insert('products', {
+      'id': _idController.text,
+      'name': _nameController.text,
+      'unit': _unitController.text,
+      'stockQty': double.parse(_stockQtyController.text),
+      'price': double.parse(_priceController.text),
+      'status': int.parse(_statusController.text),
+      'cost': _costController.text.isNotEmpty ? double.parse(_costController.text) : null,
+      'barcode': _barcodeController.text.isNotEmpty ? _barcodeController.text : null,
+      'lastModified': now,
+      'deleted': 0,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Produto salvo com sucesso!')));
+
+    Navigator.pushReplacementNamed(context, '/products');
   }
 
   @override
