@@ -31,7 +31,7 @@ class _CustomerListScreenState extends State<CustomerListScreen> {
     final db = await DatabaseHelper.instance.database;
 
     await db.update(
-      'customers',
+      'clients',
       {'deleted': 1, 'lastModified': DateTime.now().millisecondsSinceEpoch},
       where: 'id = ?',
       whereArgs: [id],
