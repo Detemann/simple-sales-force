@@ -29,6 +29,8 @@ class DatabaseHelper {
       CREATE TABLE clients (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        cpfCnpj TEXT NOT NULL,
         email TEXT,
         phone TEXT,
         cep TEXT,

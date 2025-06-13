@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trabalhon3/repositories/user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -27,9 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final id = _idController.text;
     final password = _passwordController.text;
-    final user = await UserRepository().getUserById(id);
+    final user = await UserRepository().authenticate(id, password);
 
-    if (user != null && user.password == password) {
+    if (user != null) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userName', user.name);
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('ID ou senha inválidos')));

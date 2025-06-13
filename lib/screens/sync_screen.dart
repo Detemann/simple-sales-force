@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import '../../services/database_helper.dart';
+import '../services/sync_service.dart';
+import '../services/database_helper.dart';
 
 class SyncScreen extends StatefulWidget {
   const SyncScreen({super.key});
@@ -12,16 +12,12 @@ class SyncScreen extends StatefulWidget {
 class _SyncScreenState extends State<SyncScreen> {
   final List<String> _syncLogs = [];
   bool _isSyncing = false;
-  Database? _db;
+  final SyncService _syncService = SyncService();
 
   void _log(String message) {
     setState(() {
       _syncLogs.add(message);
     });
-  }
-
-  Future<void> _openDatabase() async {
-    _db = await DatabaseHelper.instance.database;
   }
 
   Future<void> _syncData() async {
@@ -30,17 +26,30 @@ class _SyncScreenState extends State<SyncScreen> {
       _syncLogs.clear();
     });
 
-    await _openDatabase();
-
     try {
       _log('🔄 Iniciando sincronização...');
 
-      await _syncEntity('Usuários', 'usuarios');
-      await _syncEntity('Clientes', 'clientes');
-      await _syncEntity('Produtos', 'produtos');
-      await _syncEntity('Pedidos', 'pedidos', includeGet: false);
+      // Carregar URL do servidor das configurações
+      final db = await DatabaseHelper.instance.database;
+      final settings = await db.query('settings', where: 'key = ?', whereArgs: ['server_url']);
+      if (settings.isNotEmpty) {
+        _syncService.setBaseUrl(settings.first['value'] as String);
+      }
 
-      _log('✅ Sincronização finalizada com sucesso!');
+      // Realizar sincronização
+      final errors = await _syncService.syncAll();
+
+      if (errors.isEmpty) {
+        _log('✅ Sincronização finalizada com sucesso!');
+      } else {
+        _log('⚠️ Sincronização finalizada com erros:');
+        errors.forEach((entity, entityErrors) {
+          _log('  $entity:');
+          for (final error in entityErrors) {
+            _log('    - $error');
+          }
+        });
+      }
     } catch (e) {
       _log('❌ Erro ao sincronizar: $e');
     }
@@ -48,33 +57,6 @@ class _SyncScreenState extends State<SyncScreen> {
     setState(() {
       _isSyncing = false;
     });
-  }
-
-  Future<void> _syncEntity(String label, String table, {bool includeGet = true}) async {
-    const String baseUrl = 'http://localhost:8080/';
-
-    if (_db == null) return;
-
-    if (includeGet) {
-      _log('➡️ Buscando $label do servidor (GET $baseUrl$table)...');
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      _log('✔️ Dados de $label atualizados localmente.');
-    }
-
-    _log('⬆️ Enviando $label novos/alterados (POST $baseUrl$table)...');
-    await Future.delayed(const Duration(milliseconds: 500));
-    _log('✔️ Dados de $label enviados com sucesso.');
-
-    _log('🗑️ Processando exclusões de $label (DELETE $baseUrl$table)...');
-    await Future.delayed(const Duration(milliseconds: 500));
-    _log('✔️ Exclusões de $label processadas.');
-  }
-
-  @override
-  void dispose() {
-    _db?.close();
-    super.dispose();
   }
 
   @override

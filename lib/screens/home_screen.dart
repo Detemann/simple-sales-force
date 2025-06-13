@@ -104,14 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Força de Vendas'),
-        actions: [
-          IconButton(icon: const Icon(Icons.sync), tooltip: 'Sincronizar', onPressed: _onSyncPressed),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            tooltip: 'Configurações',
-            onPressed: () => Navigator.pushNamed(context, '/settings'),
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.sync), tooltip: 'Sincronizar', onPressed: _onSyncPressed)],
       ),
       drawer: _buildDrawer(),
       body: SingleChildScrollView(

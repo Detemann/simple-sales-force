@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:trabalhon3/screens/OrderList.dart';
 import 'package:trabalhon3/screens/ProductEdit.dart';
 import 'package:trabalhon3/screens/customer_list_screen.dart';
 import 'package:trabalhon3/screens/customer_registration_screen.dart';
@@ -11,6 +10,7 @@ import 'screens/home_screen.dart';
 import 'screens/user_registration_screen.dart';
 import 'screens/product_registration_screen.dart';
 import 'screens/order_registration_screen.dart';
+import 'screens/order_list_screen.dart';
 import 'screens/sync_screen.dart';
 import 'screens/settings_screen.dart';
 
